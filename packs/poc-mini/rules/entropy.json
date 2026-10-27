@@ -1,0 +1,67 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "rules",
+  "id": "entropy",
+  "vars": {
+    "entropy": {"min": 0, "max": 100, "init": 10},
+    "wave_index": {"min": 0, "max": 9999, "init": 0},
+    "next_wave_tick": {"min": 0, "max": 1000000, "init": 300}
+  },
+  "rng_streams": ["entropy"],
+  "rules": [
+    {
+      "id": "entropy_rise",
+      "on": {"every_ticks": 20},
+      "for": "world",
+      "do": [{"op": "var_add", "var": "entropy", "amount": 1}]
+    },
+    {
+      "id": "wave_spawn",
+      "on": {"every_ticks": 1},
+      "for": "world",
+      "when": {"gte": [{"ref": "world.tick"}, {"ref": "var.next_wave_tick"}]},
+      "do": [
+        {
+          "op": "wave",
+          "rng": "entropy",
+          "center": "uniform_cell",
+          "radius": {"add": [3, {"div": [{"ref": "var.entropy"}, 20]}]},
+          "power": {"add": [4, {"div": [{"ref": "var.entropy"}, 10]}]}
+        },
+        {"op": "var_add", "var": "wave_index", "amount": 1},
+        {
+          "op": "var_set",
+          "var": "next_wave_tick",
+          "value": {"add": [{"ref": "world.tick"}, 200, {"rand_below": ["entropy", 120]}]}
+        },
+        {"op": "var_add", "var": "entropy", "amount": -15},
+        {"op": "emit", "event": "wave_started"}
+      ]
+    },
+    {
+      "id": "wave_hit_default",
+      "on": {"event": "wave_hit_entity"},
+      "for": "entity",
+      "when": {
+        "not": {
+          "any": [
+            {"has_tag": ["self", "wave_immune"]},
+            {"has_tag": ["self", "wave_pushed"]},
+            {"has_tag": ["self", "wave_fed"]}
+          ]
+        }
+      },
+      "do": [
+        {
+          "op": "damage",
+          "to": "self",
+          "amount": {
+            "max": [1, {"sub": [{"ref": "wave.power"}, {"div": [{"ref": "self.entropy_resist"}, 10]}]}]
+          },
+          "kind": "entropy"
+        }
+      ]
+    }
+  ]
+}

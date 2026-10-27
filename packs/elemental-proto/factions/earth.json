@@ -1,0 +1,177 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "faction",
+  "id": "earth",
+  "name": "Terra",
+  "element": "earth",
+  "traits": [
+    "slow",
+    "durable",
+    "entropy_stabilizing"
+  ],
+  "start": {
+    "resources": {
+      "essence": 110
+    },
+    "structures": [
+      {
+        "type": "bedrock_hall",
+        "at": "spawn"
+      }
+    ],
+    "units": [
+      {
+        "type": "stone_hauler",
+        "count": 2
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "bedrock_hall",
+      "name": "Salão de Rocha",
+      "tags": [
+        "structure",
+        "core"
+      ],
+      "hp": 400,
+      "size": 2,
+      "cost": {},
+      "build_ticks": 0,
+      "produces": [
+        "stone_hauler",
+        "basalt_warden"
+      ],
+      "provides": {
+        "supply": 10
+      },
+      "entropy_resist": 20
+    },
+    {
+      "id": "stabilizer",
+      "name": "Estabilizador",
+      "tags": [
+        "structure"
+      ],
+      "hp": 140,
+      "size": 1,
+      "cost": {
+        "essence": 80
+      },
+      "build_ticks": 100,
+      "provides": {
+        "supply": 4
+      },
+      "entropy_resist": 60
+    }
+  ],
+  "units": [
+    {
+      "id": "stone_hauler",
+      "name": "Carregador de Pedra",
+      "tags": [
+        "unit",
+        "worker"
+      ],
+      "hp": 40,
+      "speed_ticks": 4,
+      "cost": {
+        "essence": 35
+      },
+      "build_ticks": 50,
+      "entropy_resist": 60,
+      "gather": {
+        "resource": "essence",
+        "amount": 5,
+        "cooldown_ticks": 24
+      },
+      "upkeep": {
+        "supply": 1
+      },
+      "builds": [
+        "stabilizer"
+      ]
+    },
+    {
+      "id": "basalt_warden",
+      "name": "Guardião de Basalto",
+      "tags": [
+        "unit"
+      ],
+      "hp": 60,
+      "speed_ticks": 4,
+      "cost": {
+        "essence": 60
+      },
+      "build_ticks": 90,
+      "entropy_resist": 60,
+      "attack": {
+        "damage": 7,
+        "range": 1,
+        "cooldown_ticks": 10,
+        "damage_kind": "physical"
+      },
+      "upkeep": {
+        "supply": 1
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "earth_stabilize",
+      "on": {
+        "every_ticks": 50
+      },
+      "for": "entity",
+      "filter": {
+        "faction": "earth",
+        "type": "stabilizer"
+      },
+      "do": [
+        {
+          "op": "var_add",
+          "var": "entropy",
+          "amount": -3
+        }
+      ]
+    }
+  ],
+  "ai_scripts": [
+    {
+      "id": "earth_turtle",
+      "think_every_ticks": 10,
+      "goals": [
+        {
+          "type": "train",
+          "unit": "stone_hauler",
+          "until_count": 4
+        },
+        {
+          "type": "gather_idle"
+        },
+        {
+          "type": "build",
+          "structure": "stabilizer",
+          "until_count": 1
+        },
+        {
+          "type": "train",
+          "unit": "basalt_warden",
+          "until_count": 4
+        },
+        {
+          "type": "train",
+          "unit": "basalt_warden",
+          "until_count": 7
+        },
+        {
+          "type": "attack",
+          "min_units": 5,
+          "after_tick": 1000,
+          "target": "nearest_enemy_core"
+        }
+      ]
+    }
+  ]
+}

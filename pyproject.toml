@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mojo-dreamfabrics"
-version = "0.1.0"
-description = "MOJO (Dream Fabrics) — motor semântico de mundos interativos .mjo (protótipo v0.1, não pronto para produção)"
+version = "0.2.0"
+description = "MOJO (Dream Fabrics) — motor semântico de mundos interativos .mjo (v0.1 texto + V2 tick-grid-v0 local; protótipo, não pronto para produção)"
 requires-python = ">=3.11"
 dependencies = ["jsonschema>=4.18"]
 readme = "README.md"
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+serve = ["fastapi>=0.110", "uvicorn>=0.30", "websockets>=12"]
+dev = ["pytest>=8", "fastapi>=0.110", "uvicorn>=0.30", "websockets>=12", "playwright>=1.40"]
 
 [project.scripts]
 mojo = "mojo.cli:main"
@@ -21,8 +22,11 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "mojo.world" = ["*.json"]
+"mojo.pack" = ["schemas/*.json"]
+"mojo.server" = ["static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+filterwarnings = ["ignore::DeprecationWarning:websockets.*", "ignore:connect\\(\\) must be used:DeprecationWarning"]
 markers = ["ragnarok: exige o Ragnarok real rodando em 127.0.0.1:8765 (pulado se ausente)"]

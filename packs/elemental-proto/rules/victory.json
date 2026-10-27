@@ -1,0 +1,134 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "rules",
+  "id": "victory",
+  "rules": [
+    {
+      "id": "core_lost",
+      "on": {
+        "event": "structure_destroyed"
+      },
+      "for": "entity",
+      "when": {
+        "has_tag": [
+          "self",
+          "core"
+        ]
+      },
+      "do": [
+        {
+          "op": "eliminate_faction",
+          "faction": "self_faction"
+        }
+      ]
+    },
+    {
+      "id": "team_defeat",
+      "on": {
+        "every_ticks": 10
+      },
+      "for": "team",
+      "when": {
+        "all": [
+          {
+            "eq": [
+              {
+                "count": {
+                  "scope": "team",
+                  "tag": "core"
+                }
+              },
+              0
+            ]
+          },
+          {
+            "eq": [
+              {
+                "ref": "param.mode"
+              },
+              "coop_vs_entropy"
+            ]
+          }
+        ]
+      },
+      "do": [
+        {
+          "op": "end",
+          "result": "defeat",
+          "who": "team"
+        }
+      ]
+    },
+    {
+      "id": "coop_survive",
+      "on": {
+        "every_ticks": 10
+      },
+      "for": "world",
+      "when": {
+        "all": [
+          {
+            "eq": [
+              {
+                "ref": "param.mode"
+              },
+              "coop_vs_entropy"
+            ]
+          },
+          {
+            "gte": [
+              {
+                "ref": "var.wave_index"
+              },
+              {
+                "ref": "param.waves_to_survive"
+              }
+            ]
+          }
+        ]
+      },
+      "do": [
+        {
+          "op": "end",
+          "result": "victory",
+          "who": "all_players"
+        }
+      ]
+    },
+    {
+      "id": "last_team",
+      "on": {
+        "every_ticks": 10
+      },
+      "for": "world",
+      "when": {
+        "all": [
+          {
+            "eq": [
+              {
+                "ref": "param.mode"
+              },
+              "versus"
+            ]
+          },
+          {
+            "eq": [
+              {
+                "ref": "world.teams_alive"
+              },
+              1
+            ]
+          }
+        ]
+      },
+      "do": [
+        {
+          "op": "end",
+          "result": "victory",
+          "who": "last_team"
+        }
+      ]
+    }
+  ]
+}

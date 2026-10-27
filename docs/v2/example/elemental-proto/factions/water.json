@@ -1,0 +1,101 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "faction",
+  "id": "water",
+  "name": "Água",
+  "element": "water",
+  "traits": ["regenerating", "economic", "erodible_structures"],
+  "start": {
+    "resources": {"essence": 120},
+    "structures": [{"type": "tide_basin", "at": "spawn"}],
+    "units": [{"type": "tide_worker", "count": 3}]
+  },
+  "structures": [
+    {
+      "id": "tide_basin",
+      "name": "Bacia da Maré",
+      "tags": ["structure", "core"],
+      "hp": 280,
+      "size": 2,
+      "cost": {},
+      "build_ticks": 0,
+      "produces": ["tide_worker", "brine_guard", "mist_healer"],
+      "provides": {"supply": 10},
+      "entropy_resist": 20
+    }
+  ],
+  "units": [
+    {
+      "id": "tide_worker",
+      "name": "Trabalhador da Maré",
+      "tags": ["unit", "worker", "regen"],
+      "hp": 22,
+      "speed_ticks": 3,
+      "cost": {"essence": 30},
+      "build_ticks": 40,
+      "entropy_resist": 0,
+      "gather": {"resource": "essence", "amount": 5, "cooldown_ticks": 20}
+    },
+    {
+      "id": "brine_guard",
+      "name": "Guarda da Salmoura",
+      "tags": ["unit", "regen"],
+      "hp": 30,
+      "speed_ticks": 3,
+      "cost": {"essence": 45},
+      "build_ticks": 70,
+      "entropy_resist": 0,
+      "attack": {"damage": 5, "range": 1, "cooldown_ticks": 9, "damage_kind": "physical"}
+    },
+    {
+      "id": "mist_healer",
+      "name": "Curandeira da Névoa",
+      "tags": ["unit", "regen"],
+      "hp": 18,
+      "speed_ticks": 3,
+      "cost": {"essence": 55},
+      "build_ticks": 80,
+      "entropy_resist": 0,
+      "attack": null,
+      "abilities": [
+        {
+          "id": "mend",
+          "cooldown_ticks": 60,
+          "cost": {"essence": 5},
+          "range": 3,
+          "do": [
+            {
+              "op": "heal",
+              "to": {
+                "entities": {
+                  "within": {"of": "self", "radius": 3},
+                  "relation": "ally",
+                  "tag": "unit",
+                  "limit": 12
+                }
+              },
+              "amount": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "water_regen",
+      "on": {"every_ticks": 30},
+      "for": "entity",
+      "filter": {"faction": "water", "tag": "regen"},
+      "do": [{"op": "heal", "to": "self", "amount": 1}]
+    },
+    {
+      "id": "water_erosion",
+      "on": {"event": "wave_hit_entity"},
+      "for": "entity",
+      "filter": {"faction": "water", "tag": "structure"},
+      "do": [{"op": "damage", "to": "self", "amount": {"ref": "wave.power"}, "kind": "entropy"}]
+    }
+  ]
+}

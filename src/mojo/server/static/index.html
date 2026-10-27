@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOJO V2</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header id="top">
+  <strong id="title">MOJO V2</strong>
+  <span id="scn" class="muted"></span>
+  <span class="spacer"></span>
+  <span id="clock" class="muted">00:00</span>
+  <span id="net" class="pill">conectando…</span>
+  <span id="ping" class="muted"></span>
+  <button id="btn-pause" title="Espaço">Pausar</button>
+  <span class="seg" id="speed">
+    <button data-v="1" title="1">1×</button><button data-v="2" title="2">2×</button><button data-v="4" title="3">4×</button>
+  </span>
+  <button id="btn-save" title="Grava um snapshot atômico em disco">Salvar</button>
+</header>
+<main>
+  <section id="stage"><canvas id="cv" tabindex="0"></canvas><div id="banner" hidden></div></section>
+  <aside id="side">
+    <div class="panel" id="p-res"><h3>Recursos</h3><div id="res"></div></div>
+    <div class="panel" id="p-hud"><h3>Entropia</h3><div id="hud"></div></div>
+    <div class="panel" id="p-sel"><h3>Seleção</h3><div id="sel" class="muted">nada selecionado</div></div>
+    <div class="panel" id="p-cmd"><h3>Comandos</h3><div id="cmds"></div>
+      <div class="hint">Botão esquerdo: selecionar/arrastar · Direito: mover, coletar ou atacar · Espaço: pausa · S: parar · Esc: cancelar</div></div>
+    <div class="panel grow" id="p-log"><h3>Registro</h3><div id="log"></div></div>
+  </aside>
+</main>
+<script type="module" src="/static/main.js"></script>
+</body>
+</html>

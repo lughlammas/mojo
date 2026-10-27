@@ -1,0 +1,245 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "faction",
+  "id": "air",
+  "name": "Ar",
+  "element": "air",
+  "traits": [
+    "fast",
+    "fragile",
+    "entropy_displaced"
+  ],
+  "start": {
+    "resources": {
+      "essence": 100
+    },
+    "structures": [
+      {
+        "type": "sky_spire",
+        "at": "spawn"
+      }
+    ],
+    "units": [
+      {
+        "type": "gale_scout",
+        "count": 2
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "sky_spire",
+      "name": "Pináculo",
+      "tags": [
+        "structure",
+        "core"
+      ],
+      "hp": 220,
+      "size": 2,
+      "cost": {},
+      "build_ticks": 0,
+      "produces": [
+        "gale_scout",
+        "zephyr_lancer",
+        "storm_caller"
+      ],
+      "provides": {
+        "supply": 10
+      },
+      "entropy_resist": 20
+    },
+    {
+      "id": "wind_perch",
+      "name": "Poleiro",
+      "tags": [
+        "structure",
+        "wave_immune"
+      ],
+      "hp": 60,
+      "size": 1,
+      "cost": {
+        "essence": 40
+      },
+      "build_ticks": 60,
+      "provides": {
+        "supply": 4
+      },
+      "entropy_resist": 0
+    }
+  ],
+  "units": [
+    {
+      "id": "gale_scout",
+      "name": "Batedor de Rajada",
+      "tags": [
+        "unit",
+        "worker",
+        "wave_pushed"
+      ],
+      "hp": 14,
+      "speed_ticks": 1,
+      "cost": {
+        "essence": 25
+      },
+      "build_ticks": 40,
+      "entropy_resist": 0,
+      "gather": {
+        "resource": "essence",
+        "amount": 3,
+        "cooldown_ticks": 20
+      },
+      "upkeep": {
+        "supply": 1
+      },
+      "builds": [
+        "wind_perch"
+      ]
+    },
+    {
+      "id": "zephyr_lancer",
+      "name": "Lanceiro do Zéfiro",
+      "tags": [
+        "unit",
+        "wave_pushed"
+      ],
+      "hp": 16,
+      "speed_ticks": 1,
+      "cost": {
+        "essence": 40
+      },
+      "build_ticks": 60,
+      "entropy_resist": 0,
+      "attack": {
+        "damage": 4,
+        "range": 2,
+        "cooldown_ticks": 8,
+        "damage_kind": "physical"
+      },
+      "upkeep": {
+        "supply": 1
+      }
+    },
+    {
+      "id": "storm_caller",
+      "name": "Evocador de Tempestade",
+      "tags": [
+        "unit",
+        "wave_pushed"
+      ],
+      "hp": 12,
+      "speed_ticks": 2,
+      "cost": {
+        "essence": 60
+      },
+      "build_ticks": 80,
+      "entropy_resist": 0,
+      "attack": null,
+      "abilities": [
+        {
+          "id": "gust",
+          "cooldown_ticks": 100,
+          "cost": {
+            "essence": 10
+          },
+          "range": 4,
+          "do": [
+            {
+              "op": "push",
+              "to": {
+                "entities": {
+                  "within": {
+                    "of": "target",
+                    "radius": 2
+                  },
+                  "relation": "enemy",
+                  "limit": 16
+                }
+              },
+              "away_from": "target",
+              "cells": 2
+            }
+          ]
+        }
+      ],
+      "upkeep": {
+        "supply": 1
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "air_wave_push",
+      "on": {
+        "event": "wave_hit_entity"
+      },
+      "for": "entity",
+      "filter": {
+        "faction": "air",
+        "tag": "wave_pushed"
+      },
+      "do": [
+        {
+          "op": "push",
+          "to": "self",
+          "away_from": "wave_center",
+          "cells": {
+            "max": [
+              1,
+              {
+                "div": [
+                  {
+                    "ref": "wave.power"
+                  },
+                  3
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "ai_scripts": [
+    {
+      "id": "air_harass",
+      "think_every_ticks": 10,
+      "goals": [
+        {
+          "type": "train",
+          "unit": "gale_scout",
+          "until_count": 4
+        },
+        {
+          "type": "gather_idle"
+        },
+        {
+          "type": "build",
+          "structure": "wind_perch",
+          "until_count": 1
+        },
+        {
+          "type": "train",
+          "unit": "zephyr_lancer",
+          "until_count": 4
+        },
+        {
+          "type": "train",
+          "unit": "storm_caller",
+          "until_count": 1
+        },
+        {
+          "type": "train",
+          "unit": "zephyr_lancer",
+          "until_count": 8
+        },
+        {
+          "type": "attack",
+          "min_units": 6,
+          "after_tick": 900,
+          "target": "nearest_enemy_core"
+        }
+      ]
+    }
+  ]
+}

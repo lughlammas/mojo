@@ -1,0 +1,70 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "scenario",
+  "id": "ai_duel",
+  "name": "IA contra IA (teste/benchmark)",
+  "mode": "versus",
+  "seed": 11,
+  "params": {
+    "mode": "versus",
+    "waves_to_survive": 99
+  },
+  "grid": {
+    "width": 16,
+    "height": 12,
+    "legend": {
+      ".": "floor",
+      "#": "rock",
+      "E": "node:essence",
+      "1": "spawn:1",
+      "2": "spawn:2"
+    },
+    "layout": [
+      "################",
+      "#..............#",
+      "#..............#",
+      "#...E......E...#",
+      "#..............#",
+      "#..............#",
+      "#.1..........2.#",
+      "#..............#",
+      "#...E......E...#",
+      "#..............#",
+      "#..............#",
+      "################"
+    ]
+  },
+  "teams": [
+    {
+      "id": "fogo",
+      "name": "Fogo"
+    },
+    {
+      "id": "terra",
+      "name": "Terra"
+    }
+  ],
+  "players": [
+    {
+      "slot": "p1",
+      "faction": "fire",
+      "team": "fogo",
+      "spawn": "1",
+      "controller": "scripted"
+    },
+    {
+      "slot": "p2",
+      "faction": "earth",
+      "team": "terra",
+      "spawn": "2",
+      "controller": "scripted"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "win",
+      "text": "Destrua o Salão de Rocha inimigo."
+    }
+  ]
+}

@@ -1,0 +1,1493 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://dreamfabrics.invalid/schemas/mojo-part-0.2.schema.json",
+ "title": "Dream Fabrics / MOJO — parte modular v0.2 (faction | resources | rules | scenario | theme)",
+ "type": "object",
+ "required": [
+  "kind"
+ ],
+ "properties": {
+  "kind": {
+   "enum": [
+    "faction",
+    "resources",
+    "rules",
+    "scenario",
+    "theme"
+   ]
+  }
+ },
+ "$defs": {
+  "ident": {
+   "type": "string",
+   "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+  },
+  "relpath": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 200
+  },
+  "expr": {
+   "description": "Literal inteiro/bool/texto curto OU objeto com UM operador da whitelist. Aridade/tipos/profundidade/nós são checados pelo compilador (fonte única: tabela OPS).",
+   "oneOf": [
+    {
+     "type": "integer",
+     "minimum": -1000000000,
+     "maximum": 1000000000
+    },
+    {
+     "type": "boolean"
+    },
+    {
+     "type": "string",
+     "maxLength": 64
+    },
+    {
+     "type": "object",
+     "minProperties": 1,
+     "maxProperties": 1,
+     "propertyNames": {
+      "enum": [
+       "abs",
+       "add",
+       "all",
+       "any",
+       "count",
+       "div",
+       "eq",
+       "gt",
+       "gte",
+       "has_tag",
+       "lt",
+       "lte",
+       "max",
+       "min",
+       "mod",
+       "mul",
+       "ne",
+       "neg",
+       "not",
+       "rand_below",
+       "ref",
+       "sub"
+      ]
+     }
+    }
+   ]
+  },
+  "selector": {
+   "oneOf": [
+    {
+     "enum": [
+      "self",
+      "target"
+     ]
+    },
+    {
+     "type": "object",
+     "required": [
+      "entities"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "entities": {
+       "type": "object",
+       "required": [
+        "within",
+        "limit"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "within": {
+         "type": "object",
+         "required": [
+          "of",
+          "radius"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "of": {
+           "enum": [
+            "self",
+            "target"
+           ]
+          },
+          "radius": {
+           "type": "integer",
+           "minimum": 1,
+           "maximum": 12
+          }
+         }
+        },
+        "relation": {
+         "enum": [
+          "enemy",
+          "ally",
+          "any"
+         ]
+        },
+        "tag": {
+         "$ref": "#/$defs/ident"
+        },
+        "limit": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 64
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  "effect": {
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "var",
+      "amount"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "var_add"
+      },
+      "var": {
+       "$ref": "#/$defs/ident"
+      },
+      "amount": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "var",
+      "value"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "var_set"
+      },
+      "var": {
+       "$ref": "#/$defs/ident"
+      },
+      "value": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "faction",
+      "resource",
+      "amount"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "add_resource"
+      },
+      "faction": {
+       "type": "string",
+       "pattern": "^([a-z0-9][a-z0-9_-]{0,63}|self_faction)$"
+      },
+      "resource": {
+       "$ref": "#/$defs/ident"
+      },
+      "amount": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "to",
+      "amount",
+      "kind"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "damage"
+      },
+      "to": {
+       "$ref": "#/$defs/selector"
+      },
+      "amount": {
+       "$ref": "#/$defs/expr"
+      },
+      "kind": {
+       "$ref": "#/$defs/ident"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "to",
+      "amount"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "heal"
+      },
+      "to": {
+       "$ref": "#/$defs/selector"
+      },
+      "amount": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "to",
+      "away_from",
+      "cells"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "push"
+      },
+      "to": {
+       "$ref": "#/$defs/selector"
+      },
+      "away_from": {
+       "enum": [
+        "target",
+        "self",
+        "wave_center"
+       ]
+      },
+      "cells": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "type",
+      "at"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "spawn"
+      },
+      "type": {
+       "$ref": "#/$defs/ident"
+      },
+      "at": {
+       "enum": [
+        "self"
+       ]
+      },
+      "count": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "to",
+      "status",
+      "ticks"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "status"
+      },
+      "to": {
+       "$ref": "#/$defs/selector"
+      },
+      "status": {
+       "$ref": "#/$defs/ident"
+      },
+      "ticks": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "rng",
+      "center",
+      "radius",
+      "power"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "wave"
+      },
+      "rng": {
+       "$ref": "#/$defs/ident"
+      },
+      "center": {
+       "const": "uniform_cell"
+      },
+      "radius": {
+       "$ref": "#/$defs/expr"
+      },
+      "power": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "faction"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "eliminate_faction"
+      },
+      "faction": {
+       "type": "string",
+       "pattern": "^([a-z0-9][a-z0-9_-]{0,63}|self_faction)$"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "result",
+      "who"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "end"
+      },
+      "result": {
+       "enum": [
+        "victory",
+        "defeat"
+       ]
+      },
+      "who": {
+       "enum": [
+        "team",
+        "all_players",
+        "last_team"
+       ]
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "event"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "emit"
+      },
+      "event": {
+       "$ref": "#/$defs/ident"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "op",
+      "rule",
+      "in_ticks"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "op": {
+       "const": "schedule"
+      },
+      "rule": {
+       "$ref": "#/$defs/ident"
+      },
+      "in_ticks": {
+       "$ref": "#/$defs/expr"
+      }
+     }
+    }
+   ]
+  },
+  "rule": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "id",
+    "on",
+    "for",
+    "do"
+   ],
+   "properties": {
+    "id": {
+     "$ref": "#/$defs/ident"
+    },
+    "on": {
+     "oneOf": [
+      {
+       "type": "object",
+       "required": [
+        "every_ticks"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "every_ticks": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 100000
+        }
+       }
+      },
+      {
+       "type": "object",
+       "required": [
+        "event"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "event": {
+         "enum": [
+          "wave_hit_entity",
+          "structure_destroyed",
+          "unit_died"
+         ]
+        }
+       }
+      }
+     ]
+    },
+    "for": {
+     "enum": [
+      "world",
+      "team",
+      "faction",
+      "entity"
+     ]
+    },
+    "filter": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "faction": {
+       "$ref": "#/$defs/ident"
+      },
+      "tag": {
+       "$ref": "#/$defs/ident"
+      },
+      "type": {
+       "$ref": "#/$defs/ident"
+      }
+     }
+    },
+    "when": {
+     "$ref": "#/$defs/expr"
+    },
+    "do": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 16,
+     "items": {
+      "$ref": "#/$defs/effect"
+     }
+    }
+   }
+  },
+  "cost": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100000
+   }
+  },
+  "unit": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "id",
+    "name",
+    "tags",
+    "hp",
+    "speed_ticks",
+    "cost",
+    "build_ticks",
+    "entropy_resist"
+   ],
+   "properties": {
+    "id": {
+     "$ref": "#/$defs/ident"
+    },
+    "name": {
+     "type": "string",
+     "maxLength": 80
+    },
+    "tags": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/ident"
+     },
+     "maxItems": 12
+    },
+    "hp": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 100000
+    },
+    "speed_ticks": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1000
+    },
+    "cost": {
+     "$ref": "#/$defs/cost"
+    },
+    "build_ticks": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100000
+    },
+    "entropy_resist": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100
+    },
+    "gather": {
+     "type": "object",
+     "required": [
+      "resource",
+      "amount",
+      "cooldown_ticks"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "resource": {
+       "$ref": "#/$defs/ident"
+      },
+      "amount": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "cooldown_ticks": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "attack": {
+     "oneOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "object",
+       "required": [
+        "damage",
+        "range",
+        "cooldown_ticks",
+        "damage_kind"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "damage": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "range": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 12
+        },
+        "cooldown_ticks": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "damage_kind": {
+         "$ref": "#/$defs/ident"
+        }
+       }
+      }
+     ]
+    },
+    "abilities": {
+     "type": "array",
+     "maxItems": 4,
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "id",
+       "cooldown_ticks",
+       "cost",
+       "range",
+       "do"
+      ],
+      "properties": {
+       "id": {
+        "$ref": "#/$defs/ident"
+       },
+       "cooldown_ticks": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "cost": {
+        "$ref": "#/$defs/cost"
+       },
+       "range": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 12
+       },
+       "do": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 8,
+        "items": {
+         "$ref": "#/$defs/effect"
+        }
+       }
+      }
+     }
+    },
+    "builds": {
+     "type": "array",
+     "maxItems": 16,
+     "items": {
+      "$ref": "#/$defs/ident"
+     }
+    },
+    "upkeep": {
+     "$ref": "#/$defs/cost"
+    }
+   }
+  },
+  "structure": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "id",
+    "name",
+    "tags",
+    "hp",
+    "size",
+    "cost",
+    "build_ticks"
+   ],
+   "properties": {
+    "id": {
+     "$ref": "#/$defs/ident"
+    },
+    "name": {
+     "type": "string",
+     "maxLength": 80
+    },
+    "tags": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/ident"
+     },
+     "maxItems": 12
+    },
+    "hp": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "size": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 4
+    },
+    "cost": {
+     "$ref": "#/$defs/cost"
+    },
+    "build_ticks": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "produces": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/ident"
+     }
+    },
+    "provides": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "integer"
+     }
+    },
+    "entropy_resist": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100
+    }
+   }
+  },
+  "ai_script": {
+   "type": "object",
+   "required": [
+    "id",
+    "think_every_ticks",
+    "goals"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "$ref": "#/$defs/ident"
+    },
+    "think_every_ticks": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 600
+    },
+    "goals": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 16,
+     "items": {
+      "oneOf": [
+       {
+        "type": "object",
+        "required": [
+         "type",
+         "unit",
+         "until_count"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "type": {
+          "const": "train"
+         },
+         "unit": {
+          "$ref": "#/$defs/ident"
+         },
+         "until_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+         }
+        }
+       },
+       {
+        "type": "object",
+        "required": [
+         "type",
+         "structure",
+         "until_count"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "type": {
+          "const": "build"
+         },
+         "structure": {
+          "$ref": "#/$defs/ident"
+         },
+         "until_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+         }
+        }
+       },
+       {
+        "type": "object",
+        "required": [
+         "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "type": {
+          "const": "gather_idle"
+         }
+        }
+       },
+       {
+        "type": "object",
+        "required": [
+         "type",
+         "min_units",
+         "after_tick",
+         "target"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "type": {
+          "const": "attack"
+         },
+         "min_units": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+         },
+         "after_tick": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000000
+         },
+         "target": {
+          "enum": [
+           "nearest_enemy_core",
+           "nearest_enemy"
+          ]
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  }
+ },
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "kind": {
+      "const": "faction"
+     }
+    },
+    "required": [
+     "kind"
+    ]
+   },
+   "then": {
+    "required": [
+     "format",
+     "schema_version",
+     "kind",
+     "id",
+     "name",
+     "element",
+     "traits",
+     "start",
+     "structures",
+     "units"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "format": {
+      "const": "dream-fabrics/mojo-part"
+     },
+     "schema_version": {
+      "type": "string",
+      "pattern": "^0\\.2\\.[0-9]+$"
+     },
+     "id": {
+      "$ref": "#/$defs/ident"
+     },
+     "kind": {
+      "const": "faction"
+     },
+     "name": {
+      "type": "string",
+      "maxLength": 80
+     },
+     "element": {
+      "$ref": "#/$defs/ident"
+     },
+     "traits": {
+      "type": "array",
+      "items": {
+       "$ref": "#/$defs/ident"
+      },
+      "maxItems": 12
+     },
+     "start": {
+      "type": "object",
+      "required": [
+       "resources",
+       "structures",
+       "units"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "resources": {
+        "$ref": "#/$defs/cost"
+       },
+       "structures": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "type",
+          "at"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "type": {
+           "$ref": "#/$defs/ident"
+          },
+          "at": {
+           "const": "spawn"
+          }
+         }
+        }
+       },
+       "units": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "type",
+          "count"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "type": {
+           "$ref": "#/$defs/ident"
+          },
+          "count": {
+           "type": "integer",
+           "minimum": 1,
+           "maximum": 50
+          }
+         }
+        }
+       }
+      }
+     },
+     "structures": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+       "$ref": "#/$defs/structure"
+      }
+     },
+     "units": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+       "$ref": "#/$defs/unit"
+      }
+     },
+     "statuses": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+       "type": "object",
+       "required": [
+        "id",
+        "ticks",
+        "modifiers"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "id": {
+         "$ref": "#/$defs/ident"
+        },
+        "ticks": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "modifiers": {
+         "type": "object",
+         "additionalProperties": false,
+         "properties": {
+          "damage_permille": {
+           "type": "integer",
+           "minimum": -1000,
+           "maximum": 1000
+          },
+          "speed_permille": {
+           "type": "integer",
+           "minimum": -1000,
+           "maximum": 1000
+          },
+          "resist_permille": {
+           "type": "integer",
+           "minimum": -1000,
+           "maximum": 1000
+          }
+         }
+        }
+       }
+      }
+     },
+     "rules": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+       "$ref": "#/$defs/rule"
+      }
+     },
+     "ai_scripts": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+       "$ref": "#/$defs/ai_script"
+      }
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "kind": {
+      "const": "resources"
+     }
+    },
+    "required": [
+     "kind"
+    ]
+   },
+   "then": {
+    "required": [
+     "format",
+     "schema_version",
+     "kind",
+     "id",
+     "resources"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "format": {
+      "const": "dream-fabrics/mojo-part"
+     },
+     "schema_version": {
+      "type": "string",
+      "pattern": "^0\\.2\\.[0-9]+$"
+     },
+     "id": {
+      "$ref": "#/$defs/ident"
+     },
+     "kind": {
+      "const": "resources"
+     },
+     "resources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+       "type": "object",
+       "required": [
+        "id",
+        "name"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "id": {
+         "$ref": "#/$defs/ident"
+        },
+        "name": {
+         "type": "string",
+         "maxLength": 80
+        },
+        "gatherable": {
+         "type": "boolean"
+        },
+        "derived": {
+         "type": "boolean"
+        },
+        "node_amount": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 100000
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "kind": {
+      "const": "rules"
+     }
+    },
+    "required": [
+     "kind"
+    ]
+   },
+   "then": {
+    "required": [
+     "format",
+     "schema_version",
+     "kind",
+     "id",
+     "rules"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "format": {
+      "const": "dream-fabrics/mojo-part"
+     },
+     "schema_version": {
+      "type": "string",
+      "pattern": "^0\\.2\\.[0-9]+$"
+     },
+     "id": {
+      "$ref": "#/$defs/ident"
+     },
+     "kind": {
+      "const": "rules"
+     },
+     "vars": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "object",
+       "required": [
+        "min",
+        "max",
+        "init"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "min": {
+         "type": "integer"
+        },
+        "max": {
+         "type": "integer"
+        },
+        "init": {
+         "type": "integer"
+        }
+       }
+      }
+     },
+     "rng_streams": {
+      "type": "array",
+      "items": {
+       "$ref": "#/$defs/ident"
+      },
+      "uniqueItems": true,
+      "maxItems": 16
+     },
+     "rules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+       "$ref": "#/$defs/rule"
+      }
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "kind": {
+      "const": "scenario"
+     }
+    },
+    "required": [
+     "kind"
+    ]
+   },
+   "then": {
+    "required": [
+     "format",
+     "schema_version",
+     "kind",
+     "id",
+     "name",
+     "mode",
+     "seed",
+     "params",
+     "grid",
+     "teams",
+     "players"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "format": {
+      "const": "dream-fabrics/mojo-part"
+     },
+     "schema_version": {
+      "type": "string",
+      "pattern": "^0\\.2\\.[0-9]+$"
+     },
+     "id": {
+      "$ref": "#/$defs/ident"
+     },
+     "kind": {
+      "const": "scenario"
+     },
+     "name": {
+      "type": "string"
+     },
+     "mode": {
+      "$ref": "#/$defs/ident"
+     },
+     "seed": {
+      "type": "integer"
+     },
+     "params": {
+      "type": "object",
+      "additionalProperties": {
+       "oneOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string",
+         "maxLength": 64
+        },
+        {
+         "type": "boolean"
+        }
+       ]
+      }
+     },
+     "grid": {
+      "type": "object",
+      "required": [
+       "width",
+       "height",
+       "legend",
+       "layout"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "width": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 128
+       },
+       "height": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 128
+       },
+       "legend": {
+        "type": "object",
+        "additionalProperties": {
+         "type": "string"
+        }
+       },
+       "layout": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "teams": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "type": "object",
+       "required": [
+        "id",
+        "name"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "id": {
+         "$ref": "#/$defs/ident"
+        },
+        "name": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "players": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "slot",
+        "faction",
+        "team",
+        "spawn",
+        "controller"
+       ],
+       "properties": {
+        "slot": {
+         "$ref": "#/$defs/ident"
+        },
+        "faction": {
+         "$ref": "#/$defs/ident"
+        },
+        "team": {
+         "$ref": "#/$defs/ident"
+        },
+        "spawn": {
+         "type": "string",
+         "maxLength": 8
+        },
+        "controller": {
+         "enum": [
+          "human",
+          "scripted"
+         ]
+        },
+        "ai_script": {
+         "$ref": "#/$defs/ident"
+        }
+       }
+      }
+     },
+     "objectives": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "required": [
+        "id",
+        "text"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "id": {
+         "$ref": "#/$defs/ident"
+        },
+        "text": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "default_speed": {
+      "enum": [
+       1,
+       2,
+       4
+      ]
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "kind": {
+      "const": "theme"
+     }
+    },
+    "required": [
+     "kind"
+    ]
+   },
+   "then": {
+    "required": [
+     "format",
+     "schema_version",
+     "kind",
+     "id",
+     "colors"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "format": {
+      "const": "dream-fabrics/mojo-part"
+     },
+     "schema_version": {
+      "type": "string",
+      "pattern": "^0\\.2\\.[0-9]+$"
+     },
+     "id": {
+      "$ref": "#/$defs/ident"
+     },
+     "kind": {
+      "const": "theme"
+     },
+     "colors": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "string",
+       "pattern": "^#[0-9A-Fa-f]{6}$"
+      }
+     },
+     "cell_px": {
+      "type": "integer",
+      "minimum": 8,
+      "maximum": 64
+     },
+     "texts": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+       "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+      },
+      "additionalProperties": {
+       "type": "string",
+       "maxLength": 200
+      }
+     },
+     "narration": {
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": {
+       "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+      },
+      "additionalProperties": {
+       "type": "string",
+       "maxLength": 240
+      }
+     },
+     "hud": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+       "type": "object",
+       "required": [
+        "var",
+        "label"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "var": {
+         "$ref": "#/$defs/ident"
+        },
+        "label": {
+         "type": "string",
+         "maxLength": 40
+        },
+        "kind": {
+         "enum": [
+          "value",
+          "countdown",
+          "bar"
+         ]
+        },
+        "max": {
+         "type": "integer",
+         "minimum": 1
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ ]
+}

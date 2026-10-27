@@ -1,0 +1,143 @@
+{
+  "rotulo": "MEDIÇÃO NA BOX (não é o PC do Gui)",
+  "quando": "2026-10-27 19:58:35 (America/Sao_Paulo)",
+  "python": "3.13.5",
+  "so": "Linux-6.12.94+-x86_64-with-glibc2.41",
+  "cpu": "Intel(R) Xeon(R) Processor",
+  "nucleos": 8,
+  "cenarios": {
+    "poc-mini/mini": {
+      "ticks": 300,
+      "entities": 10,
+      "ms_per_tick": {
+        "mean": 0.0217,
+        "p50": 0.0087,
+        "p99": 0.1156,
+        "max": 2.3795
+      },
+      "result": "victory"
+    },
+    "poc-mini/duel": {
+      "ticks": 1100,
+      "entities": 13,
+      "ms_per_tick": {
+        "mean": 0.0162,
+        "p50": 0.0131,
+        "p99": 0.0771,
+        "max": 0.371
+      },
+      "result": "victory"
+    },
+    "poc-mini/ai_duel": {
+      "ticks": 1100,
+      "entities": 13,
+      "ms_per_tick": {
+        "mean": 0.0249,
+        "p50": 0.0201,
+        "p99": 0.118,
+        "max": 0.5289
+      },
+      "result": "victory"
+    },
+    "elemental-proto/coop_vs_entropy": {
+      "ticks": 1520,
+      "entities": 16,
+      "ms_per_tick": {
+        "mean": 0.0193,
+        "p50": 0.0166,
+        "p99": 0.0864,
+        "max": 0.1698
+      },
+      "result": "victory"
+    },
+    "elemental-proto/quarteto_ai": {
+      "ticks": 1160,
+      "entities": 14,
+      "ms_per_tick": {
+        "mean": 0.0577,
+        "p50": 0.0445,
+        "p99": 0.2503,
+        "max": 2.5146
+      },
+      "result": "victory"
+    }
+  },
+  "estresse_motor": {
+    "400": {
+      "entities_start": 400,
+      "entities_end": 400,
+      "ticks": 1200,
+      "ms_per_tick": {
+        "mean": 0.6346,
+        "p50": 0.4658,
+        "p99": 4.3989,
+        "max": 11.2337
+      },
+      "budget_ms_at_10hz": 100,
+      "headroom_x_p99": 22.7
+    },
+    "800": {
+      "entities_start": 800,
+      "entities_end": 800,
+      "ticks": 1200,
+      "ms_per_tick": {
+        "mean": 0.9368,
+        "p50": 0.7431,
+        "p99": 4.9731,
+        "max": 6.468
+      },
+      "budget_ms_at_10hz": 100,
+      "headroom_x_p99": 20.1
+    }
+  },
+  "websocket_leve": {
+    "hz": 10,
+    "duration_s": 20,
+    "ping_rtt_ms": {
+      "mean": 0.7267,
+      "p50": 0.6862,
+      "p99": 1.804,
+      "max": 2.8365
+    },
+    "cmd_to_ack_ms": {
+      "mean": 0.4686,
+      "p50": 0.4348,
+      "p99": 1.0102,
+      "max": 1.0102
+    },
+    "tick_arrival_gap_ms": {
+      "mean": 99.8128,
+      "p50": 101.7228,
+      "p99": 103.4183,
+      "max": 103.9913
+    },
+    "server_tick_ms_p99": 0.272,
+    "server_total_ms_p99": 3.567,
+    "late_ticks": 0,
+    "bytes_sent": 19319,
+    "bytes_per_s": 966,
+    "ticks": 200
+  },
+  "websocket_400_entidades": {
+    "entities": 400,
+    "hz": 10,
+    "duration_s": 20,
+    "ping_rtt_ms": {
+      "mean": 0.9412,
+      "p50": 0.8451,
+      "p99": 5.5169,
+      "max": 7.5887
+    },
+    "tick_arrival_gap_ms": {
+      "mean": 100.0775,
+      "p50": 100.98,
+      "p99": 108.4765,
+      "max": 109.3027
+    },
+    "server_tick_ms_mean": 1.145,
+    "server_tick_ms_p99": 12.52,
+    "server_total_ms_p99": 12.889,
+    "late_ticks": 0,
+    "client_bytes_per_s": 20636
+  }
+}

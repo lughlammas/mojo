@@ -1,0 +1,14 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "rules",
+  "id": "economy",
+  "rules": [
+    {
+      "id": "base_income",
+      "on": {"every_ticks": 100},
+      "for": "faction",
+      "do": [{"op": "add_resource", "faction": "self_faction", "resource": "essence", "amount": 2}]
+    }
+  ]
+}

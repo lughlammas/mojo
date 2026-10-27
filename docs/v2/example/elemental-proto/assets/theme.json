@@ -1,0 +1,17 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "theme",
+  "id": "theme_default",
+  "colors": {
+    "air": "#CFE8F5",
+    "water": "#2F7FBF",
+    "fire": "#D9542B",
+    "earth": "#7A6A3A",
+    "floor": "#17172B",
+    "rock": "#34344E",
+    "node": "#E9D7B1",
+    "entropy": "#B63A49"
+  },
+  "cell_px": 28
+}

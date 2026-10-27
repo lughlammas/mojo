@@ -1,0 +1,66 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "scenario",
+  "id": "mini",
+  "name": "Mini: sobreviver a 1 onda (você = Fogo; Terra é aliada scriptada)",
+  "mode": "coop_vs_entropy",
+  "seed": 1,
+  "params": {
+    "mode": "coop_vs_entropy",
+    "waves_to_survive": 1
+  },
+  "grid": {
+    "width": 16,
+    "height": 12,
+    "legend": {
+      ".": "floor",
+      "#": "rock",
+      "E": "node:essence",
+      "1": "spawn:1",
+      "2": "spawn:2"
+    },
+    "layout": [
+      "################",
+      "#..............#",
+      "#..............#",
+      "#...E......E...#",
+      "#..............#",
+      "#..............#",
+      "#.1..........2.#",
+      "#..............#",
+      "#...E......E...#",
+      "#..............#",
+      "#..............#",
+      "################"
+    ]
+  },
+  "teams": [
+    {
+      "id": "alliance",
+      "name": "Aliança"
+    }
+  ],
+  "players": [
+    {
+      "slot": "p1",
+      "faction": "fire",
+      "team": "alliance",
+      "spawn": "1",
+      "controller": "human"
+    },
+    {
+      "slot": "p2",
+      "faction": "earth",
+      "team": "alliance",
+      "spawn": "2",
+      "controller": "scripted"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "survive",
+      "text": "Sobreviva à onda de entropia (tick ~300) mantendo seu núcleo vivo."
+    }
+  ]
+}

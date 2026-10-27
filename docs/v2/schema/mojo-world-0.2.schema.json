@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamfabrics.invalid/schemas/mojo-world-0.2.schema.json",
+  "title": "Dream Fabrics / MOJO — manifesto de mundo v0.2 (world.mjo)",
+  "type": "object",
+  "required": ["format", "schema_version", "id", "title", "kind", "engine", "semantics", "audio"],
+  "$defs": {
+    "ident": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"},
+    "relpath": {"type": "string", "minLength": 1, "maxLength": 200}
+  },
+  "properties": {
+    "format": {"const": "dream-fabrics/mojo-world"},
+    "schema_version": {"type": "string", "pattern": "^0\\.2\\.[0-9]+$"},
+    "id": {"$ref": "#/$defs/ident"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 200},
+    "kind": {"enum": ["text-adventure", "rts-grid"]},
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {"canon": {"type": "boolean"}, "author": {"type": "string"}, "note": {"type": "string"}}
+    },
+    "engine": {
+      "type": "object",
+      "required": ["profile", "min_mojo"],
+      "additionalProperties": false,
+      "properties": {
+        "profile": {"enum": ["turn-text-v0", "tick-grid-v0"]},
+        "min_mojo": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+      }
+    },
+    "sim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tick_hz", "seed", "max_entities", "max_effects_per_tick"],
+      "properties": {
+        "tick_hz": {"type": "integer", "minimum": 1, "maximum": 30},
+        "seed": {"type": "integer"},
+        "max_entities": {"type": "integer", "minimum": 1, "maximum": 5000},
+        "max_effects_per_tick": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "max_rule_nodes": {"type": "integer", "minimum": 1, "maximum": 256},
+        "max_wave_radius": {"type": "integer", "minimum": 1, "maximum": 64}
+      }
+    },
+    "includes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resources": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/relpath"}},
+        "factions": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/relpath"}},
+        "rules": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/relpath"}},
+        "scenarios": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/relpath"}}
+      }
+    },
+    "mods": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": ["id", "path"],
+        "additionalProperties": false,
+        "properties": {"id": {"$ref": "#/$defs/ident"}, "path": {"$ref": "#/$defs/relpath"}}
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "theme": {"$ref": "#/$defs/relpath"},
+        "panels": {
+          "type": "array",
+          "items": {"enum": ["resources", "selection", "commands", "wave_forecast", "log"]}
+        }
+      }
+    },
+    "modes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "min_players": {"type": "integer"},
+          "max_players": {"type": "integer"},
+          "friendly_fire": {"type": "boolean"},
+          "shared_victory": {"type": "boolean"}
+        }
+      }
+    },
+    "semantics": {"type": "object"},
+    "audio": {"type": "object"},
+    "world": {"type": "object", "description": "legado v0.1 (kind=text-adventure)"},
+    "rules": {"type": "object", "description": "legado v0.1 (kind=text-adventure)"}
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {"properties": {"kind": {"const": "rts-grid"}}},
+      "then": {"required": ["sim", "includes"]}
+    },
+    {
+      "if": {"properties": {"kind": {"const": "text-adventure"}}},
+      "then": {"required": ["world", "rules"]}
+    }
+  ]
+}

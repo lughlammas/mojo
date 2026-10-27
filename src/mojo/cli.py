@@ -148,6 +148,10 @@ def cmd_play(a) -> int:
 
 
 def cmd_validate(a) -> int:
+    from pathlib import Path as _P
+    if _P(a.world).is_dir():  # V2: pasta de pacote (aditivo; o caminho .mjo do v0.1 abaixo não muda)
+        from .cli_v2 import cmd_pack_validate
+        return cmd_pack_validate(a, a.world)
     w = load_world(a.world)
     print(f"OK: {w.id} · '{w.title}' · schema {w.data['schema_version']} · cenas={len(w.scenes)} · "
           f"canon={'sim' if w.canon else 'não'} · sha256={w.sha256[:12]}")
@@ -186,6 +190,8 @@ def build_parser() -> argparse.ArgumentParser:
     ac.add_argument("--config")
     ac.add_argument("--say", help="sintetiza este texto com narrator_default")
     ac.set_defaults(fn=cmd_audio_check)
+    from .cli_v2 import register as _register_v2  # V2 (aditivo)
+    _register_v2(sub)
     return p
 
 

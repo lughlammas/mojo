@@ -1,0 +1,63 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "theme",
+  "id": "theme_default",
+  "colors": {
+    "air": "#CFE8F5",
+    "water": "#2F7FBF",
+    "fire": "#D9542B",
+    "earth": "#7A6A3A",
+    "floor": "#17172B",
+    "rock": "#34344E",
+    "node": "#E9D7B1",
+    "entropy": "#B63A49",
+    "selection": "#FFE066",
+    "hp_ok": "#58C46A",
+    "hp_low": "#D14B4B",
+    "grid": "#22223A",
+    "wave": "#B63A49"
+  },
+  "cell_px": 28,
+  "texts": {
+    "wave": "Onda de entropia em ({x},{y}) · raio {r} · poder {p}.",
+    "wave_started": "A entropia se rompe: onda {wave_index} desencadeada.",
+    "unit_died": "{type_name} ({faction_name}) caiu.",
+    "structure_destroyed": "{type_name} ({faction_name}) foi destruído.",
+    "built": "{type_name} ({faction_name}) concluído.",
+    "build_started": "Construção iniciada: {type_name}.",
+    "trained": "{type_name} ({faction_name}) pronto.",
+    "faction_eliminated": "{faction_name} foi eliminada.",
+    "node_depleted": "Uma fonte de recurso se esgotou.",
+    "no_path": "Sem caminho para a ordem dada.",
+    "cmd_rejected": "Comando recusado ({type}): {why}.",
+    "ability": "Habilidade {ability} usada.",
+    "game_over": "Fim de jogo.",
+    "effects_overflow": "Limite de efeitos por tick atingido (max_effects_per_tick).",
+    "limit_entities": "Limite de entidades atingido (max_entities)."
+  },
+  "narration": {
+    "wave_started": "A entropia se rompe. Onda {wave_index}.",
+    "structure_destroyed": "{type_name} de {faction_name} foi destruído.",
+    "faction_eliminated": "{faction_name} está eliminada.",
+    "game_over": "Fim da partida."
+  },
+  "hud": [
+    {
+      "var": "entropy",
+      "label": "Entropia",
+      "kind": "bar",
+      "max": 100
+    },
+    {
+      "var": "next_wave_tick",
+      "label": "Próxima onda em",
+      "kind": "countdown"
+    },
+    {
+      "var": "wave_index",
+      "label": "Ondas",
+      "kind": "value"
+    }
+  ]
+}

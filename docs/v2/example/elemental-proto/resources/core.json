@@ -1,0 +1,10 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "resources",
+  "id": "core",
+  "resources": [
+    {"id": "essence", "name": "Essência", "start_cap": 800, "gatherable": true},
+    {"id": "supply", "name": "Suprimento", "derived": true}
+  ]
+}

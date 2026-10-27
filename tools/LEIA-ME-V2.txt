@@ -1,0 +1,24 @@
+MOJO V2 (0.2.0) - Dream Fabrics - instalador para Windows
+==========================================================
+
+ESTE PACOTE NAO FOI TESTADO NO WINDOWS (foi construido e testado numa maquina Linux).
+Os .bat seguem o mesmo padrao do instalador do v0.1. Se algo falhar, nada e apagado.
+
+COMO INSTALAR
+  1. Extraia este ZIP inteiro (clique direito > Extrair tudo).
+  2. De duplo clique em INSTALAR-V2.bat.
+     - Copia o app para C:\MOJO\mojo (nao apaga o venv, os saves nem a pasta .mojo).
+     - Usa o venv C:\MOJO\mojo\.venv se ja existir; senao cria um (instala o Python 3.12 pelo winget se faltar).
+     - Instala fastapi, uvicorn, websockets e jsonschema: primeiro das rodas offline da pasta "wheels"
+       (Windows x64, Python 3.11/3.12/3.13); se nao servirem, tenta pela internet (pip).
+     - Valida os pacotes de exemplo e roda uma simulacao curta.
+
+COMO JOGAR
+  - C:\MOJO\mojo\SERVIR.bat                      abre o poc-mini no navegador (127.0.0.1:8770)
+  - C:\MOJO\mojo\SERVIR.bat packs\elemental-proto --scenario quarteto
+  - C:\MOJO\mojo\mojo-v2.bat simulate packs\poc-mini --scenario ai_duel --ticks 600
+  - C:\MOJO\mojo\JOGAR-AZRAEL.bat                v0.1 (texto), igual a antes
+
+Leia README-V2.md (em C:\MOJO\mojo) para controles, pacotes, replay, seguranca e limitacoes.
+Tudo roda localmente em 127.0.0.1. Nenhum servico externo e usado. A narracao por voz
+(Ragnarok) e opcional: sem ele o jogo mostra so texto.

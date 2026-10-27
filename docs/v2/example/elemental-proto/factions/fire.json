@@ -1,0 +1,84 @@
+{
+  "format": "dream-fabrics/mojo-part",
+  "schema_version": "0.2.0",
+  "kind": "faction",
+  "id": "fire",
+  "name": "Fogo",
+  "element": "fire",
+  "traits": ["aggressive", "entropy_feeding", "starves_when_calm"],
+  "start": {
+    "resources": {"essence": 90},
+    "structures": [{"type": "forge_core", "at": "spawn"}],
+    "units": [{"type": "ember_runner", "count": 2}]
+  },
+  "structures": [
+    {
+      "id": "forge_core",
+      "name": "Núcleo-Forja",
+      "tags": ["structure", "core"],
+      "hp": 300,
+      "size": 2,
+      "cost": {},
+      "build_ticks": 0,
+      "produces": ["ember_runner", "cinder_guard", "pyre_thrower"],
+      "provides": {"supply": 10},
+      "entropy_resist": 20
+    }
+  ],
+  "units": [
+    {
+      "id": "ember_runner",
+      "name": "Corredor de Brasa",
+      "tags": ["unit", "worker", "wave_fed"],
+      "hp": 24,
+      "speed_ticks": 2,
+      "cost": {"essence": 30},
+      "build_ticks": 40,
+      "entropy_resist": 0,
+      "gather": {"resource": "essence", "amount": 4, "cooldown_ticks": 20}
+    },
+    {
+      "id": "cinder_guard",
+      "name": "Guarda de Cinza",
+      "tags": ["unit", "wave_fed"],
+      "hp": 34,
+      "speed_ticks": 3,
+      "cost": {"essence": 50},
+      "build_ticks": 70,
+      "entropy_resist": 0,
+      "attack": {"damage": 7, "range": 1, "cooldown_ticks": 8, "damage_kind": "fire"}
+    },
+    {
+      "id": "pyre_thrower",
+      "name": "Lança-Pira",
+      "tags": ["unit", "wave_fed"],
+      "hp": 20,
+      "speed_ticks": 3,
+      "cost": {"essence": 70},
+      "build_ticks": 90,
+      "entropy_resist": 0,
+      "attack": {"damage": 9, "range": 3, "cooldown_ticks": 14, "damage_kind": "fire"}
+    }
+  ],
+  "statuses": [{"id": "inflamed", "ticks": 50, "modifiers": {"damage_permille": 300}}],
+  "rules": [
+    {
+      "id": "fire_fed_by_wave",
+      "on": {"event": "wave_hit_entity"},
+      "for": "entity",
+      "filter": {"faction": "fire", "tag": "wave_fed"},
+      "do": [
+        {"op": "heal", "to": "self", "amount": 2},
+        {"op": "status", "to": "self", "status": "inflamed", "ticks": 50}
+      ]
+    },
+    {
+      "id": "fire_starves_when_calm",
+      "on": {"every_ticks": 20},
+      "for": "entity",
+      "filter": {"faction": "fire", "tag": "wave_fed"},
+      "when": {"lt": [{"ref": "var.entropy"}, 10]},
+      "do": [{"op": "damage", "to": "self", "amount": 1, "kind": "entropy"}]
+    }
+  ]
+}

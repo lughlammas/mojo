@@ -1,0 +1,42 @@
+{
+  "format": "dream-fabrics/mojo-world",
+  "schema_version": "0.2.0",
+  "id": "poc-mini",
+  "title": "PoC Mínimo: Fogo + Terra contra uma onda (exemplo, não canônico)",
+  "kind": "rts-grid",
+  "meta": {
+    "canon": false,
+    "author": "Dream Fabrics — proposta MOJO V2",
+    "note": "Exemplo técnico. As 4 facções elementais são pedido do Gui; nomes, unidades e números são EXEMPLO de balanceamento, não canon."
+  },
+  "engine": {"profile": "tick-grid-v0", "min_mojo": "2.0.0"},
+  "sim": {
+    "tick_hz": 10,
+    "seed": 20261027,
+    "max_entities": 120,
+    "max_effects_per_tick": 4000,
+    "max_rule_nodes": 64,
+    "max_wave_radius": 12
+  },
+  "includes": {
+    "resources": ["resources/core.json"],
+    "factions": ["factions/fire.json", "factions/earth.json"],
+    "rules": ["rules/economy.json", "rules/entropy.json", "rules/victory.json"],
+    "scenarios": ["scenarios/mini.json"]
+  },
+  "mods": [],
+  "ui": {
+    "theme": "assets/theme.json",
+    "panels": ["resources", "selection", "commands", "wave_forecast", "log"]
+  },
+  "modes": {
+    "coop_vs_entropy": {"min_players": 1, "max_players": 2, "friendly_fire": false, "shared_victory": true},
+    "versus": {"min_players": 2, "max_players": 2, "friendly_fire": false, "shared_victory": false}
+  },
+  "semantics": {
+    "narration_style": "épica sóbria e concisa",
+    "model_adapter": "configurable",
+    "generation_constraints": ["respect_world_rules", "do_not_mutate_state_directly"]
+  },
+  "audio": {"provider": "ragnarok", "enabled": true, "voice_profile": "narrator_default"}
+}
