@@ -1,0 +1,58 @@
+{
+  "format": "dream-fabrics/mojo-world",
+  "schema_version": "0.1.0",
+  "id": "azrael",
+  "title": "Azrael (demonstração, não canônico)",
+  "meta": {
+    "canon": false,
+    "author": "Dream Fabrics — protótipo MOJO",
+    "note": "Conteúdo ilustrativo de teste. Nomes, cores, cenário e regras NÃO são definições canônicas da obra Azrael. Entidades, saídas e regras foram preenchidas como PROPOSTA mínima."
+  },
+  "world": {
+    "description": "Mundo de fantasia com direção artística tricromática.",
+    "palette": ["#17172B", "#B63A49", "#E9D7B1"],
+    "starting_scene": "threshold",
+    "scenes": [
+      {
+        "id": "threshold",
+        "title": "Limiar",
+        "description": "Um limiar silencioso diante de uma cidadela distante.",
+        "exits": [],
+        "entities": [
+          {
+            "id": "marco",
+            "name": "marco de pedra",
+            "aliases": ["marco", "pedra"],
+            "description": "Um marco de pedra baixo, coberto de musgo.",
+            "inspect_text": "O marco de pedra tem uma face lisa e gasta; nenhuma inscrição legível resta nela.",
+            "speakable": true,
+            "speak_reply": "O silêncio devolve apenas o final da sua frase, muito baixo."
+          },
+          {
+            "id": "cidadela",
+            "name": "cidadela distante",
+            "aliases": ["cidadela", "torres"],
+            "description": "A cidadela distante, recortada contra o horizonte.",
+            "inspect_text": "A cidadela distante mal se distingue do horizonte; nenhuma luz se move nas torres."
+          }
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "system": "rpg-minimal-v0",
+    "player": {"hp": 10, "max_hp": 10, "inventory": []},
+    "allowed_actions": ["look", "speak", "inspect"],
+    "allowed_events": ["set_flag"]
+  },
+  "semantics": {
+    "narration_style": "fantasia solene e concisa",
+    "model_adapter": "configurable",
+    "generation_constraints": ["respect_world_rules", "do_not_mutate_state_directly"]
+  },
+  "audio": {
+    "provider": "ragnarok",
+    "enabled": true,
+    "voice_profile": "narrator_default"
+  }
+}

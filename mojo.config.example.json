@@ -1,0 +1,10 @@
+{
+  "adapter": {"kind": "mock", "enabled": false},
+  "ragnarok": {
+    "enabled": true,
+    "base_url": "http://127.0.0.1:8765",
+    "timeout_s": 20,
+    "voice_profiles": {"narrator_default": {"voice": "alex-pt", "speed": 1.0}}
+  },
+  "language": "pt-BR"
+}
