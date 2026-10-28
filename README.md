@@ -1,85 +1,97 @@
-# MOJO — motor semântico de mundos interativos (Dream Fabrics)
+# MOJO V2 (0.2.0) — jogo de grade em tempo real, 100% local
 
-Protótipo **v0.1** do **MOJO**: carrega um mundo `.mjo` (JSON UTF-8), valida, executa um loop textual (`look`, `inspect`, `speak`) com regras determinísticas, registra tudo em log JSONL e, se o **Ragnarok** estiver no ar, pede a narração em áudio.
+> **Estado: protótipo funcional, não pronto para produção.** Números dos pacotes de exemplo são **ilustrativos** (não são canon). Testado na box (Linux): 400 testes e uma partida jogada no Chrome headless. No Windows (28/10/2026), o `INSTALAR-V2.bat` instalou, os pacotes validaram, a simulação rodou e o servidor respondeu em 127.0.0.1 com Host falso recusado; **a interface ainda não foi aberta nem jogada num navegador no Windows**. O v0.1 está documentado em [README-V0.1.md](README-V0.1.md).
 
-> **Não está pronto para produção.** É um protótipo para provar o ciclo de ponta a ponta. Veja "Limitações" e `docs/IMPLEMENTACAO.md`.
+O V2 é um núcleo **aditivo** ao MOJO v0.1: um motor de ticks fixos (`tick-grid-v0`) que lê **pacotes de jogo em JSON** (pastas com um manifesto `world.mjo`), serve uma interface web **só em `127.0.0.1`** (FastAPI + WebSocket) e desenha em Canvas 2D (ES Modules, sem CDN, sem build). O modo texto/CLI do v0.1 continua **idêntico** (`mojo play`, `mojo validate`).
 
-Princípio: **o modelo de linguagem propõe, o núcleo decide.** O estado só muda pelo núcleo, depois de validar a proposta. Sem modelo, o jogo roda com o adaptador `mock`; sem Ragnarok, roda em texto.
+Princípios (diretriz do Gui): comportamento, mundos, regras, facções e cenários **só em JSON local**; nada hardcoded no núcleo, nada na nuvem; tudo validado por schema (`additionalProperties:false`) **antes** do primeiro tick; sem `eval`; limites duros; caminhos seguros.
 
-## Instalação (Python ≥ 3.11)
+## Instalar (Windows) — quando o Gui quiser
+
+1. Extraia `MOJO-V2-Windows.zip`.
+2. Duplo clique em **`INSTALAR-V2.bat`**. Ele copia o app para `C:\MOJO\mojo`, **reutiliza** o venv `C:\MOJO\mojo\.venv` se existir (senão cria), instala `fastapi`, `uvicorn`, `websockets`, `jsonschema` (primeiro das rodas offline da pasta `wheels`, se compatíveis; senão pela internet) e valida os pacotes de exemplo.
+3. Para jogar: **`C:\MOJO\mojo\SERVIR.bat`** (abre o navegador em `http://127.0.0.1:8770/?t=<token>`).
+
+Linux/macOS (como foi testado): `python -m venv .venv && .venv/bin/pip install -e ".[serve]"` e depois `mojo serve packs/poc-mini --open`.
+
+## Comandos
+
+```text
+mojo serve <pasta-do-pacote> [--scenario ID] [--seed N] [--port 8770] [--open] [--lan] [--audio auto|off]
+                             [--home PASTA] [--no-record] [--resume snapshot.json]
+mojo pack-validate <pasta | arquivo.mjo>     valida (e, para .mjo v0.1, migra para 0.2 em memória)
+mojo validate <pasta | arquivo.mjo>          igual ao v0.1 para .mjo; pasta → validador V2
+mojo simulate <pasta> --scenario ID --ticks N    roda sem interface; imprime JSON com o hash final
+mojo replay <arquivo.jsonl> [--pack pasta] [--force]   reexecuta e verifica hashes (sai com 1 se divergir)
+mojo play <arquivo.mjo>                      v0.1, texto (inalterado)
+```
+
+No Windows use `mojo-v2.bat <mesmos argumentos>` (ex.: `mojo-v2.bat serve packs\elemental-proto --scenario quarteto --open`).
+
+## Pacotes incluídos (`packs/`)
+
+| pacote | o que é | cenários |
+|---|---|---|
+| `poc-mini` | Fogo + Terra, grade 16×12, 1 recurso (`essence`) | `mini` (você = Fogo, coop contra a entropia, vence ao sobreviver à onda do tick 300), `duel` (Fogo humano × Terra IA), `coop2` (2 humanos), `ai_duel` (IA × IA) |
+| `elemental-proto` | **Ar / Água / Fogo / Terra** + entropia, 24×16 e 32×24 | `coop_vs_entropy` (seed 777), `duel_fire_water`, `coop2`, `quarteto` (4 times; você = Ar), `quarteto_ai` |
+
+Assimetria **por dados**: Fogo é alimentado pela onda (cura + status `inflamed`); Terra resiste e tem o `stabilizer` (reduz a entropia); Ar é empurrado pela onda (e tem a habilidade `gust`); Água regenera e tem `mist_healer` (habilidade `mend`) mas **erode** as estruturas. Tudo isso são regras JSON em `factions/*.json` e `rules/*.json`.
+
+## Jogando
+
+* **Botão esquerdo**: selecionar (clique/arrastar; Shift acumula). **Botão direito**: mover / coletar (nó de recurso) / atacar (inimigo). **Espaço**: pausa. **1/2/3**: velocidade 1×/2×/4×. **S**: parar. **Esc**: cancelar modo/seleção.
+* Selecionou uma estrutura: botões **Treinar …** (fila de até 5) e **Cancelar último**. Selecionou operários: **Construir …** (clique na grade; o fantasma verde/vermelho mostra se cabe) e **habilidades**.
+* Painéis: Recursos (inclui suprimento), Entropia (variáveis do pacote + próxima onda), Seleção, Comandos, Registro.
+* **Coop na mesma máquina**: abra uma segunda aba na mesma URL — ela assume o próximo slot humano livre; a terceira vira espectadora. A partida só avança quando há um humano conectado e **pausa sozinha** quando o último sai.
+* `--lan` (perigoso, só se você quiser jogar em outra máquina da rede): escuta em `0.0.0.0`, aceita Host/Origin de IP privado; o token continua obrigatório.
+
+## Estrutura de um pacote (tudo texto)
+
+```text
+meu-jogo/
+  world.mjo                 manifesto: sim{tick_hz,max_entities,...}, includes{resources,factions,rules,scenarios}, ui.theme, audio, mods:[]
+  resources/*.json          recursos (derivados como `supply`, nós com `node_amount`)
+  factions/*.json           unidades, estruturas, status, habilidades, regras próprias, ai_scripts
+  rules/*.json              variáveis, rng_streams, regras (on every_ticks | event → for world|team|faction|entity → when → do[])
+  scenarios/*.json          grade (legenda floor|rock|node:<rec>|spawn:<id>), times, jogadores (human|scripted), objetivos
+  assets/theme.json         cores, textos do registro (`texts`), narração (`narration`), HUD
+```
+
+Expressões (`when`, valores) são JSON numa lista branca: `all/any/not`, `eq/ne/lt/lte/gt/gte`, `add/sub/mul/div/mod/min/max/neg/abs`, `ref`, `has_tag`, `rand_below`, `count`. Efeitos: `var_add var_set add_resource damage heal push spawn status wave eliminate_faction end emit schedule`. Os schemas estão em `src/mojo/pack/schemas/` (e a explicação completa na proposta, `docs/MOJO-V2-PROPOSTA.md`).
+
+**Adicionar uma facção ou mecânica sem tocar em Python:** copie `factions/fire.json`, troque ids/nomes/números, liste-a em `includes.factions`, dê uma cor em `assets/theme.json` e referencie-a num cenário. Há um teste que faz exatamente isso (`tests/v2/test_text_only_extension.py`: clona o Fogo como "plasma", cria o cenário `plasma_vs_terra` e roda IA × IA até o fim, de forma determinística).
+
+## Determinismo, replay e snapshots
+
+* Mesma seed + mesmos comandos ⇒ **mesmo hash** (testado em 2 execuções e em processos com `PYTHONHASHSEED` diferentes). Todo o estado é inteiro; RNG SplitMix64 isolado por subsistema, derivado da seed mestra.
+* Cada partida grava `…/.mojo/replays/<pacote>-<cenário>-<data>.jsonl` (comandos + hash a cada 50 ticks). `mojo replay <arquivo> --pack packs/poc-mini` reexecuta e acusa o **primeiro tick divergente**. A IA não é gravada: é reexecutada.
+* Snapshots atômicos (`.mojo/snapshots/<partida>/latest.json` a cada 100 ticks; botão **Salvar** grava `manual-<tick>.json`). Retomar: `mojo serve <pacote> --scenario <o mesmo> --resume <snapshot.json>` (sem gravação de replay).
+* A pasta de dados é `./.mojo` (ou `$MOJO_HOME` / `--home`).
+
+## Segurança (modelo: página web maliciosa / DNS rebinding — não malware local)
+
+Servidor em `127.0.0.1`; **Host e Origin estritos** em HTTP e WebSocket; token aleatório por execução (impresso no terminal; vai na URL); CSP `default-src 'none'` + `script-src 'self'` (sem inline, sem CDN); estáticos por lista branca; áudio só por `/audio/<sha256>.wav`; mensagens ≤ 4096 B e ≤ 120/s por cliente; nenhum upload; o pacote é escolhido na linha de comando, nunca pelo navegador; `/docs` desligado. Pacotes: JSON estrito sem floats/duplicatas, tamanhos/profundidade limitados, `resolve_inside` (sem `..` nem symlink para fora), `mods` rejeitado.
+
+## Narração (opcional)
+
+Eventos do pacote geram texto de narração (`assets/theme.json → narration`) **imediatamente**; se o Ragnarok (127.0.0.1:8765) estiver ligado e `audio.enabled` no manifesto, a síntese roda **fora do tick**, numa thread, e o áudio chega depois (`narration_audio`). Sem Ragnarok: só texto, sem erro. `--audio off` desliga.
+
+## Testes e medições
+
 ```bash
-cd mojo
-python3 -m venv .venv && source .venv/bin/activate      # Windows: py -3 -m venv .venv ; .venv\Scripts\activate
-pip install -e ".[dev]"                                  # instala jsonschema (única dependência) e pytest
+.venv/bin/python -m pytest -q tests            # v0.1 (196 + 4 pulados que exigem o Ragnarok real) + V2 (204)
+.venv/bin/python -m pytest -q tests/v2         # só V2 (inclui E2E em Chrome headless; pula se não houver Chrome)
+.venv/bin/python tools/bench_v2.py             # medições (grava docs/v2/MEDICOES-BOX.json)
 ```
-Sem instalar o pacote: `pip install jsonschema` e use `./mojo.sh` (Linux/macOS) ou `mojo.bat` (Windows, **não testado**).
+Resultados e rótulos: `docs/V2-TESTES.md`, `docs/v2/MEDICOES-BOX.md`, screenshots em `docs/v2/screenshots/`.
 
-## Execução
-```bash
-mojo play examples/azrael.mjo            # abre o mundo de demonstração e mostra a cena inicial
-mojo play examples/azrael.mjo --audio off
-mojo validate examples/azrael.mjo        # só valida (código de saída 2 se inválido)
-mojo audio-check [--say "texto"]         # health_check do Ragnarok (e síntese opcional)
-python -m mojo ...                       # equivalente (com PYTHONPATH=src)
-```
-Comandos na sessão: ações do mundo `look`, `inspect <alvo>`, `speak <texto>`, `go <saída>` (só se o mundo permitir) — também em PT: `olhar`, `inspecionar`, `falar`, `ir`. Console: `state`, `log [n]`, `save [slot]`, `load [slot]`, `audio`, `help`, `quit`.
+## Limitações conhecidas
 
-### Exemplo de sessão (mock, Ragnarok real no ar; saída real da box, resumida)
-```
-[mojo 0.1.0] adaptador semântico: mock · áudio: ragnarok (ok: Ragnarok 0.1.0; engine carregado: None)
-== Azrael (demonstração, não canônico) ==
-(mundo de demonstração, NÃO canônico)
-Um limiar silencioso diante de uma cidadela distante. Você nota: marco de pedra, cidadela distante.
-[áudio] ok · voz alex-pt · 7.707s · 2380 ms
-> inspect marco
-O marco de pedra tem uma face lisa e gasta; nenhuma inscrição legível resta nela.
-[estado] flag inspected:marco = True
-[áudio] ok · voz alex-pt · 5.749s · 1196 ms
-> speak Quem guarda este limiar?
-Você diz: "Quem guarda este limiar?". O silêncio devolve apenas o final da sua frase, muito baixo.
-> go norte
-Ação não permitida neste mundo: 'go'. Permitidas: look, speak, inspect.
-> state
-Cena: Limiar [threshold]   Turno: 5 ... Flags: {"inspected:marco": true}
-```
-Com o Ragnarok desligado a mesma sessão aparece como `[áudio indisponível] Ragnarok indisponível (...) — continuando em modo texto` (aviso uma única vez).
+* Não testado no Windows nem no navegador do Gui; fps do Canvas não medido.
+* Mods (`mods[]`), lockstep em rede, núcleo nativo e PWA **não** estão implementados (ficam para depois).
+* Aventura de texto (v0.1) **não** roda sobre o WebSocket (continua no CLI).
+* Pathfinding A* simples (8 direções, teto de expansão 6000, fila `max_paths_per_tick`); unidades podem sobrepor células; sem fog of war.
+* `Origin` é forjável por outro processo local; o token na URL protege contra páginas web, não contra malware na sua conta.
+* Números e nomes dos pacotes de exemplo **não são canon** nem balanceados.
 
-## Ragnarok (áudio)
-O MOJO fala com o Ragnarok **por HTTP** (`127.0.0.1:8765`), sem importar código dele. Suba-o à parte: `cd ragnarok/app && ./run.sh web --no-browser` (Windows: `ragnarok.bat web`). O MOJO usa `GET /api/status` (health) e `POST /v1/audio/speech` (WAV), com timeout próprio, **cache por hash** (`.mojo/cache/audio/`) e disjuntor. O perfil lógico `narrator_default` do `.mjo` vira uma voz real na configuração (`mojo.config.example.json`). Só loopback é aceito, a menos que a config diga o contrário.
-
-## Configuração
-`mojo.config.json` (opcional; modelo em `mojo.config.example.json`) ou `--config`. Pasta de dados: `./.mojo` ou `$MOJO_HOME`. **Sem segredos no arquivo:** chaves só por variável de ambiente (`api_key_env`); campo `api_key` é recusado. Adaptadores `local`/`remote` (API compatível com OpenAI) estão **desligados por padrão** (`enabled:false`); o remoto ainda exige `https`, `consent_remote:true` e a variável de ambiente.
-
-## Estrutura
-```
-schema/mojo-world-0.1.schema.json   contrato do .mjo (cópia empacotada em src/mojo/world/)
-examples/azrael.mjo                 mundo de demonstração, NÃO canônico
-src/mojo/
-  world/    loader (valida), paths (anti-travessia), migrations (versões)
-  engine/   state, actions, events, loop (core loop)
-  semantic/ base, mock (padrão), openai_compat (interface local/remoto)
-  audio/    base, ragnarok (RagnarokAdapter), player
-  store/    saves (atômicos), logs (JSONL)
-  render/   text      config.py   cli.py
-tests/      pytest (200 testes; 4 exigem o Ragnarok real e são pulados sem ele)
-docs/       DIAGNOSTICO-RAGNAROK, ARQUITETURA, ADRs, DECISOES-PENDENTES, IMPLEMENTACAO, TESTES
-```
-
-## Testes
-```bash
-pytest -q                      # tudo (os 4 testes do Ragnarok real são pulados se ele não estiver no ar)
-pytest -q -m "not ragnarok"    # só os testes sem Ragnarok real
-pytest -q -m ragnarok          # só a integração real (suba o Ragnarok antes)
-```
-Resultados medidos: `docs/TESTES.md`.
-
-## Segurança (resumo)
-`.mjo` é **dado**: nada é executado, `eval`/shell inexistentes; chaves desconhecidas rejeitadas; textos do mundo e do jogador vão ao modelo como dados e o modelo só **propõe** eventos de uma lista fechada, validados pelo núcleo; caminhos de `resources[]`, nomes de slot e ids de sessão são validados contra `..`, absolutos, UNC, drive, nomes reservados do Windows e symlinks. Logs e saves ficam locais.
-
-## Limitações (honestas)
-- **Simulado/limitado:** o `mock` não "entende" nada: devolve texto do próprio `.mjo`. O adaptador `local`/`remote` foi testado **somente contra um servidor falso local** que imita o protocolo; nenhum modelo real (local ou remoto) foi avaliado, e a utilidade de LLM local na máquina do Gui (7,7 GB, sem GPU) é **inferência**, não medida.
-- **Windows não testado.** Tudo foi testado em Linux (Python 3.11.17 e 3.13.5). `mojo.bat`, `os.startfile` (`--play-audio`) e a rotina de arquivo atômico no Windows são **não testados**. `--play-audio` não foi exercido nem no Linux (a box não tem player de áudio).
-- Ainda é projeto: `.mjo` assinado/compactado, sonorização/SFX, interpretação de texto livre, combate/itens/regras além do mínimo, renderização além de texto, multiusuário, migração de saves entre versões.
-- O áudio exige o Ragnarok real em execução e com modelos instalados; latência medida na CPU da box (não a do Gui): ~0,6–2,4 s por frase curta (ver `docs/TESTES.md`).
-- O conteúdo de `azrael.mjo` (entidades, textos, saídas) é **proposta de demonstração, não canon**.
-- Licença do código MOJO: **a definir pelo Gui** (decisão 2). Dependência: `jsonschema` (MIT).
+Decisões adotadas sem entrevista: `docs/V2-DECISOES-ADOTADAS.md`.

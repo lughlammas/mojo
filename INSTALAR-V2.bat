@@ -74,7 +74,7 @@ echo  MOJO V2 instalado em %DEST%
 echo  Para jogar (abre o navegador):  %DEST%\SERVIR.bat
 echo  Outro pacote:  %DEST%\SERVIR.bat packs\elemental-proto
 echo  v0.1 (texto):  %DEST%\JOGAR-AZRAEL.bat   ^(continua igual^)
-echo  Leia: %DEST%\README-V2.md
+echo  Leia: %DEST%\README.md
 echo ============================================================
 pause
 exit /b 0
